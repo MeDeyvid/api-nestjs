@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class CreateProductDto {
   id: string;
 
-  @ApiProperty({ examples: ['product A', 'product b'] })
+  @ApiProperty({ example: 'product A' })
   @IsString()
   @IsNotEmpty()
   name: string;

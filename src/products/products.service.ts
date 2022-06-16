@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -14,6 +18,11 @@ export class ProductsService {
 
   create(createProductDto: CreateProductDto) {
     const product = this.repository.create(createProductDto);
+
+    if (!product.name) throw new BadRequestException('Product name not found');
+    if (!product.price)
+      throw new BadRequestException('Product price not found');
+
     return this.repository.save(product);
   }
 
@@ -21,8 +30,12 @@ export class ProductsService {
     return this.repository.find();
   }
 
-  async findOne(id: string) {
-    return await this.repository.findOneById(id);
+  async findOneById(id: string) {
+    const product = await this.repository.findOneById(id);
+    console.log(product);
+    if (!product) throw new NotFoundException(`Product ${id} not found`);
+
+    return product;
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
@@ -37,7 +50,9 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    const product = await this.findOne(id);
+    const product = await this.findOneById(id);
+    if (!product) throw new NotFoundException(`Product ${id} not found`);
+
     return this.repository.remove(product);
   }
 }
